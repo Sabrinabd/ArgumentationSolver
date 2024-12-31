@@ -204,4 +204,98 @@ class Dung:
 		else:
 			return None
 
- 
+ # Nested Semantics class within Dung	
+	class Semantics:
+		def __init__(self, af):
+			self.af = af
+
+		def compute_stable_extensions(self):
+
+			if checkArgumentsInRelations(self.af._Dung__arguments, self.af._Dung__relations) == True:
+				adm = self.af.compute_cfs()
+				stb = []
+				if len(adm) > 0:
+					for x in adm:
+						if set(x).union(get_attacked_args(set(x), self.af._Dung__relations)) == self.af._Dung__arguments:
+							stb.append(x)
+				ext = Extensions(stb, self.af._Dung__arguments)
+				return ext 
+			else:
+				return None
+
+		
+		def compute_complete_extensions(self):
+	
+			if checkArgumentsInRelations(self.af._Dung__arguments, self.af._Dung__relations)==True:
+				compl = []
+				adm = self.af.compute_admissibility()
+				if len(adm) > 0:
+					for conj in adm:
+						accArgs = set()
+						for x in self.af._Dung__arguments:
+							if compute_acceptability(x, conj, self.af._Dung__relations) == True:
+								accArgs.add(x)
+						if accArgs == conj:
+							compl.append(conj)
+
+				ext = Extensions(compl, self.af._Dung__arguments) 
+				return ext
+			else:
+				return None
+
+# Functions for verification and decision-making
+
+def decide(elem, arg,set1):
+    if elem in arg:
+        if elem in set1:
+            print("YES")
+        else:
+            print("NO")
+    else:
+        print("Argument not known")
+        
+
+def verify_complete(set1, arg, bigset):
+    for argument in set1:
+        if argument not in arg:
+            print(f"Error argument \"{argument}\"  not my arguments, Please change the argument name.")
+            sys.exit(1) 
+    if set(set1) in bigset:
+        print("YES")
+    else:
+        print("NO")
+
+
+def verify_stable(set1, arg, bigset):
+    for argument in set1:
+        if argument not in arg:
+            print(f"Error argument \"{argument}\"  not my arguments, Please change the argument name.")
+            sys.exit(1) 
+    if is_combination_in_list(set1, bigset):
+         print("YES")
+    else:
+         print("NO")
+         
+# Function to process input data
+
+def process_data(input_data):
+    if input_data== "arg" or input_data=="att":
+        print(f"An argument cannot be named {input_data}")
+        sys.exit(1)
+    # Check if input_data contains commas
+    if ',' in input_data:
+        # If commas are present, split the data and store it in a tuple
+        dataDecide = tuple(map(str.strip, input_data.split(',')))
+    else:
+        # If no commas, store the single alphanumeric word
+        dataDecide = input_data.strip()
+
+    return dataDecide
+
+def is_combination_in_list(check_tuple, tuple_list):
+    
+    for permuted_tuple in permutations(check_tuple):
+        if permuted_tuple in tuple_list:
+            return True
+    return False
+
